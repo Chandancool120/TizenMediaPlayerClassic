@@ -25,13 +25,17 @@
 		    <p>{{ clock | date:'HH:mm:ss'}}</p>
 	    </div>
 	    
-	    <div class='filename'>
-	    	<p>{{filename}}</p>
-    	</div>
-	    
 	    <div class="progress">
-	    	<p>{{progressInfo}}</p>
+	    	<p><b>Postęp:</b> {{progressInfo}}</p>
 	    </div>
+	    
+	    <div class="remaining">
+	    	<p><b>Pozostało:</b> {{remaining}}</p>
+	    </div>
+	    
+   	    <div class='filename'>
+	    	<p><b>Nazwa pliku:</b> {{filename}}</p>
+    	</div>
 	    
 		<div id="opts">
 		  <div class="opt left">BACK</div>

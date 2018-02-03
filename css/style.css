@@ -1,7 +1,7 @@
 html body {
     position: absolute;
     padding: 0 px;
-    background-color: #ffffff;
+    background-color: #797979;
     color: #000000;
 }
 
@@ -9,9 +9,13 @@ html * {
 	font-size: 25px !important;
 }
 
-.clock, .progress, .filename {
+.clock, .progress, .filename, .remaining {
 	width: 15%;
 	text-overflow: ellipsis;
+}
+
+.clock {
+	background-color: #C0C2FF;
 }
 
 #opts {

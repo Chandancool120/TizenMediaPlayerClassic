@@ -67,6 +67,7 @@ app.controller('MainController', ['$scope', '$http', '$interval', function MainC
 		$scope.ipAddress = $scope.ipAddressInput.val;
 		$scope.progressInfo = "";
 		$scope.filename = "";
+		$scope.remaining = "";
 		
 		console.log(tizen.tvinputdevice.getSupportedKeys());
 		tizen.tvinputdevice.registerKeyBatch(['MediaPlay', 'MediaPause', 'MediaRewind', 'MediaFastForward', 
@@ -202,13 +203,24 @@ app.controller('MainController', ['$scope', '$http', '$interval', function MainC
 	function updateProgressInfo(){
 		$scope.progressInfo = "";
 		$scope.filename = "";
+		$scope.remaining = "";
 		$http({
 			method: "GET",
 			url: "http://" + $scope.ipAddress + "/variables.html"
 		}).then(function success(response){
 			var data = response.data;
 			$scope.filename = extractVariable(data, "file");
-			$scope.progressInfo = extractVariable(data, "positionstring") + "/" + extractVariable(data, "durationstring");
+			
+			var position = extractVariable(data, "positionstring");
+			var duration = extractVariable(data, "durationstring");
+			$scope.progressInfo = position + "/" + duration;
+			
+			var positionDate = new Date("01/01/2007 " + position);
+			var durationDate = new Date("01/01/2007 " + duration);
+
+			$scope.remaining = pad2((durationDate.getHours() - positionDate.getHours())) + ":" 
+				+ pad2((durationDate.getMinutes() - positionDate.getMinutes())) + ":" 
+				+ pad2((durationDate.getSeconds() - positionDate.getSeconds()))
 		});
 	}
 	
@@ -216,6 +228,10 @@ app.controller('MainController', ['$scope', '$http', '$interval', function MainC
 		var regex = new RegExp('(<p id="' + variable +  '">)(.*)(<\/p>)');
 		var match = regex.exec(variablesResponse);
 		return match[2];
+	}
+	
+	function pad2(number) {
+	     return (number < 10 ? '0' : '') + number
 	}
 	
 	function showPiPFull(){
