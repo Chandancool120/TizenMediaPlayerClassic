@@ -20,21 +20,26 @@
 	<script src="js/main.js" type="text/javascript"></script>
 </head>
 <body>
-    <div ng-controller='TimeCtrl' class='clock'>
-	    <p>{{ clock | date:'HH:mm:ss'}}</p>
-    </div>
-    
-	<div id="opts" ng-controller="MainController">
-	  <div class="opt left">BACK</div>
-	  <div class="center">
-		  <div class="opt up">:</div>
-		  <div id="ip_addr">
-		  	<input ng-class="{ 'active': ipAddress === ipAddressInput.val }" ng-value="ipAddressInput.val" type="text"/></input>
+	<div ng-controller="MainController">
+	    <div class='clock'>
+		    <p>{{ clock | date:'HH:mm:ss'}}</p>
+	    </div>
+	    
+	    <div class="progress">
+	    	<p>{{progressInfo}}</p>
+	    </div>
+	    
+		<div id="opts">
+		  <div class="opt left">BACK</div>
+		  <div class="center">
+			  <div class="opt up">:</div>
+			  <div id="ip_addr">
+			  	<input ng-class="{ 'active': ipAddress === ipAddressInput.val }" ng-value="ipAddressInput.val" type="text"/></input>
+			  </div>
+			  <div class="opt down">.</div>
 		  </div>
-		  <div class="opt down">.</div>
-	  </div>
-	  <div class="opt right">CLEAR</div>
+		  <div class="opt right">CLEAR</div>
+		</div>
 	</div>
-	
 </body>
 </html>

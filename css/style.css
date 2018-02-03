@@ -9,9 +9,8 @@ html * {
 	font-size: 25px !important;
 }
 
-.clock {
-	position:fixed; 
-	right:20px;
+.clock, .progress {
+	width: 15%;
 }
 
 #opts {

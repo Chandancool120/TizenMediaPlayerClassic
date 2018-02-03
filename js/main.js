@@ -58,23 +58,15 @@ TVKEY_TO_MPC_COMMAND[TVKEY.VOLUME_MUTE] = MPC_COMMAND.MUTE;
 
 var IP_ADDR_LOCAL_STORAGE_KEY = "IP_ADDR";
 
-
-app.controller('TimeCtrl', function($scope, $interval) {
-  var tick = function() {
-    $scope.clock = Date.now();
-  }
-  tick();
-  $interval(tick, 1000);
-});
-
-app.controller('MainController', ['$scope', '$http', function MainController($scope, $http) {
+app.controller('MainController', ['$scope', '$http', '$interval', function MainController($scope, $http, $interval) {
 	var mode = MODE.NORMAL;
 	
-	var savedIpAddr = localStorage.getItem(IP_ADDR_LOCAL_STORAGE_KEY);
-	$scope.ipAddressInput = {val: savedIpAddr ? savedIpAddr : '192.168.0.13:13579'};
-	$scope.ipAddress = $scope.ipAddressInput.val;
-	
 	function init(){
+		var savedIpAddr = localStorage.getItem(IP_ADDR_LOCAL_STORAGE_KEY);
+		$scope.ipAddressInput = {val: savedIpAddr ? savedIpAddr : '192.168.0.13:13579'};
+		$scope.ipAddress = $scope.ipAddressInput.val;
+		$scope.progressInfo = "";
+		
 		console.log(tizen.tvinputdevice.getSupportedKeys());
 		tizen.tvinputdevice.registerKeyBatch(['MediaPlay', 'MediaPause', 'MediaRewind', 'MediaFastForward', 
 		                                      'MediaTrackPrevious', 'MediaTrackNext', 'VolumeUp', 'VolumeDown', 'VolumeMute',
@@ -82,6 +74,7 @@ app.controller('MainController', ['$scope', '$http', function MainController($sc
 		document.addEventListener("keydown", keyDownEventListener);
 		
 		showPiPFull();
+		startClock();
 	}
 	
 	function callMpcCommand(keycode){
@@ -94,6 +87,14 @@ app.controller('MainController', ['$scope', '$http', function MainController($sc
 				url: "http://" + $scope.ipAddress + "/command.html?wm_command=" + commandCode
 			});
 		}
+	}
+	
+	function startClock(){
+	  var tick = function() {
+	    $scope.clock = Date.now();
+	  }
+	  tick();
+	  $interval(tick, 1000);
 	}
 	
 	function keyDownEventListener(e){
@@ -111,7 +112,7 @@ app.controller('MainController', ['$scope', '$http', function MainController($sc
 					break;
 				case TVKEY.OK:
 					switchMode(MODE.OPT);
-					showPiPOpt();
+					showOptView();
 					break;
 				default:
 					callMpcCommand(keyCode)
@@ -192,8 +193,28 @@ app.controller('MainController', ['$scope', '$http', function MainController($sc
 		mode = newMode;
 	}
 	
-	function showPiPOpt(){
+	function showOptView(){
+		updateProgressInfo();
 		showPiP('15%', '0', '70%', '70%');
+	}
+	
+	function updateProgressInfo(){
+		$scope.progressInfo = "";
+		$http({
+			method: "GET",
+			url: "http://" + $scope.ipAddress + "/variables.html"
+		}).then(function success(response){
+			
+			var data = response.data;
+			var positionRegex = /(<p id="positionstring">)(.*)(<\/p>)/g;
+			var durationRegex = /(<p id="durationstring">)(.*)(<\/p>)/g;
+			
+			var positionMatch = positionRegex.exec(data);
+			var durationMatch = durationRegex.exec(data);
+			
+			$scope.progressInfo = positionMatch[2] + "/" + durationMatch[2];
+			$scope.$apply();
+		});
 	}
 	
 	function showPiPFull(){
