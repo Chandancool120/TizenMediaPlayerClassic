@@ -1,0 +1,24 @@
+html body {
+    position: absolute;
+    padding: 0 px;
+    background-color: #ffffff;
+    color: #000000;
+}
+
+html * {
+	font-size: 25px !important;
+}
+
+#opts {
+	position:fixed; 
+	bottom:25%;
+}
+
+#opts #dot, #opts #dots {
+	outline: thin solid black;
+	width: 50px;
+}
+
+#ip_addr input {
+	width: 500px;
+}

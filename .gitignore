@@ -1,0 +1,7 @@
+**/.settings
+**/.sign
+**/lib
+*.wgt
+.project
+.sdk_delta.info
+.tproject
