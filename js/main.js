@@ -178,6 +178,7 @@ app.controller('MainController', ['$scope', '$http', '$interval', function MainC
 					$scope.ipAddressInput.val += "9";
 					break;
 				default:
+					callMpcCommand(keyCode)
 					break;
 			}	
 			console.log($scope.ipAddressInput.val);
@@ -231,7 +232,7 @@ app.controller('MainController', ['$scope', '$http', '$interval', function MainC
 	}
 	
 	function pad2(number) {
-	     return (number < 10 ? '0' : '') + number
+	     return number < 0 ? '00' : (number < 10 ? '0' : '') + number
 	}
 	
 	function showPiPFull(){

@@ -6,12 +6,13 @@ html body {
 }
 
 html * {
+	width: 100%;
 	font-size: 25px !important;
 }
 
 .clock, .progress, .filename, .remaining {
-	width: 15%;
-	text-overflow: ellipsis;
+	width: 14%;
+	overflow-wrap: break-word;
 }
 
 .clock {
@@ -19,9 +20,9 @@ html * {
 }
 
 #opts {
-	position:fixed; 
-	bottom:20%;
-	left: 35%;
+	position:fixed;
+	bottom: 21%;
+	left: 25%;
 }
 
 #opts .opt {
@@ -30,11 +31,22 @@ html * {
 
 #opts .right, #opts .left{
 	float: left;
-	margin-top: 28px;
+	margin-top: 33px;
+	width:10%
+}
+
+#opts .left{
+	text-align: right;
+}
+
+#opts.right {
+	text-align: left;
 }
 
 #opts .center {
 	float: left;
+	width: 500px;
+	margin: 0px 5px 0px 5px;
 }
 
 #ip_addr input, #opts .opt.up, #opts .opt.down {
