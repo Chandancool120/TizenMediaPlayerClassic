@@ -56,13 +56,23 @@ TVKEY_TO_MPC_COMMAND[TVKEY.VOLUME_UP] = MPC_COMMAND.VOL_UP;
 TVKEY_TO_MPC_COMMAND[TVKEY.VOLUME_DOWN] = MPC_COMMAND.VOL_DOWN;
 TVKEY_TO_MPC_COMMAND[TVKEY.VOLUME_MUTE] = MPC_COMMAND.MUTE;
 
+var IP_ADDR_LOCAL_STORAGE_KEY = "IP_ADDR";
 
-var address = "http://192.168.0.13:13579/command.html"  
 
+app.controller('TimeCtrl', function($scope, $interval) {
+  var tick = function() {
+    $scope.clock = Date.now();
+  }
+  tick();
+  $interval(tick, 1000);
+});
 
 app.controller('MainController', ['$scope', '$http', function MainController($scope, $http) {
 	var mode = MODE.NORMAL;
-	$scope.ipAddress = '192.168.0.13:13579';
+	
+	var savedIpAddr = localStorage.getItem(IP_ADDR_LOCAL_STORAGE_KEY);
+	$scope.ipAddressInput = {val: savedIpAddr ? savedIpAddr : '192.168.0.13:13579'};
+	$scope.ipAddress = $scope.ipAddressInput.val;
 	
 	function init(){
 		console.log(tizen.tvinputdevice.getSupportedKeys());
@@ -70,6 +80,7 @@ app.controller('MainController', ['$scope', '$http', function MainController($sc
 		                                      'MediaTrackPrevious', 'MediaTrackNext', 'VolumeUp', 'VolumeDown', 'VolumeMute',
 		                                      '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
 		document.addEventListener("keydown", keyDownEventListener);
+		
 		showPiPFull();
 	}
 	
@@ -80,7 +91,7 @@ app.controller('MainController', ['$scope', '$http', function MainController($sc
 		} else {
 			$http({
 				method: "GET",
-				url: address + "?wm_command=" + commandCode
+				url: "http://" + $scope.ipAddress + "/command.html?wm_command=" + commandCode
 			});
 		}
 	}
@@ -88,29 +99,89 @@ app.controller('MainController', ['$scope', '$http', function MainController($sc
 	function keyDownEventListener(e){
 		console.log(e.keyCode);
 		var keyCode = e.keyCode;
-		switch (keyCode) {
-			case TVKEY.BACK:
-				if(isMode(MODE.NORMAL)){
+		
+		if(isMode(MODE.NORMAL)){
+			switch (keyCode) {
+				case TVKEY.BACK:
 					try {
 			            tizen.application.getCurrentApplication().exit();
 			        } catch (error) {
 			            console.error("getCurrentApplication(): " + error.message);
 			        }
-				} else if(isMode(MODE.OPT)){
-					switchMode(MODE.NORMAL);
-					showPiPFull();
-				}
-				break;
-			case TVKEY.OK:
-				if(isMode(MODE.NORMAL)){
+					break;
+				case TVKEY.OK:
 					switchMode(MODE.OPT);
 					showPiPOpt();
-				}
-				break;
-			default:
-				callMpcCommand(keyCode)
-				break;
+					break;
+				default:
+					callMpcCommand(keyCode)
+					break;
+			}
 		}
+		
+		if(isMode(MODE.OPT)){
+			switch (keyCode) {
+				case TVKEY.BACK:
+					$scope.ipAddressInput.val = $scope.ipAddress;
+					switchMode(MODE.NORMAL);
+					showPiPFull();
+					break;
+				case TVKEY.OK:
+					$scope.ipAddress = $scope.ipAddressInput.val;
+					localStorage.setItem(IP_ADDR_LOCAL_STORAGE_KEY, $scope.ipAddress);
+					break;
+				case TVKEY.LEFT:
+					if($scope.ipAddressInput.val.length > 0){
+						$scope.ipAddressInput.val = $scope.ipAddressInput.val.slice(0, -1);
+					}
+					break;
+				case TVKEY.RIGHT:
+					$scope.ipAddressInput.val = "";
+					break;
+				case TVKEY.UP:
+					$scope.ipAddressInput.val += ":";
+					break;
+				case TVKEY.DOWN:
+					$scope.ipAddressInput.val += ".";
+					break;
+				case TVKEY.ZERO:
+					$scope.ipAddressInput.val += "0";
+					break;
+				case TVKEY.ONE:
+					$scope.ipAddressInput.val += "1";
+					break;
+				case TVKEY.TWO:
+					$scope.ipAddressInput.val += "2";
+					break;
+				case TVKEY.THREE:
+					$scope.ipAddressInput.val += "3";
+					break;
+				case TVKEY.FOUR: 
+					$scope.ipAddressInput.val += "4";
+					break;
+				case TVKEY.FIVE: 
+					$scope.ipAddressInput.val += "5";
+					break;
+				case TVKEY.SIX: 
+					$scope.ipAddressInput.val += "6";
+					break;
+				case TVKEY.SEVEN: 
+					$scope.ipAddressInput.val += "7";
+					break;
+				case TVKEY.EIGHT:
+					$scope.ipAddressInput.val += "8";
+					break;
+				case TVKEY.NINE: 
+					$scope.ipAddressInput.val += "9";
+					break;
+				default:
+					break;
+			}	
+			console.log($scope.ipAddressInput.val);
+			$scope.$apply();
+		}
+		
+		
 	}
 	
 	function isMode(toCheck){

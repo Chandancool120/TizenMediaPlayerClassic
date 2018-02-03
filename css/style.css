@@ -9,16 +9,35 @@ html * {
 	font-size: 25px !important;
 }
 
+.clock {
+	position:fixed; 
+	right:20px;
+}
+
 #opts {
 	position:fixed; 
-	bottom:25%;
+	bottom:20%;
+	left: 35%;
 }
 
-#opts #dot, #opts #dots {
-	outline: thin solid black;
-	width: 50px;
+#opts .opt {
+	margin: 0 auto;
 }
 
-#ip_addr input {
+#opts .right, #opts .left{
+	float: left;
+	margin-top: 28px;
+}
+
+#opts .center {
+	float: left;
+}
+
+#ip_addr input, #opts .opt.up, #opts .opt.down {
 	width: 500px;
+	text-align:center;
+}
+
+#ip_addr input.active {
+	background-color: green;
 }
