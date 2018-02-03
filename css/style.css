@@ -9,8 +9,9 @@ html * {
 	font-size: 25px !important;
 }
 
-.clock, .progress {
+.clock, .progress, .filename {
 	width: 15%;
+	text-overflow: ellipsis;
 }
 
 #opts {

@@ -66,6 +66,7 @@ app.controller('MainController', ['$scope', '$http', '$interval', function MainC
 		$scope.ipAddressInput = {val: savedIpAddr ? savedIpAddr : '192.168.0.13:13579'};
 		$scope.ipAddress = $scope.ipAddressInput.val;
 		$scope.progressInfo = "";
+		$scope.filename = "";
 		
 		console.log(tizen.tvinputdevice.getSupportedKeys());
 		tizen.tvinputdevice.registerKeyBatch(['MediaPlay', 'MediaPause', 'MediaRewind', 'MediaFastForward', 
@@ -200,21 +201,21 @@ app.controller('MainController', ['$scope', '$http', '$interval', function MainC
 	
 	function updateProgressInfo(){
 		$scope.progressInfo = "";
+		$scope.filename = "";
 		$http({
 			method: "GET",
 			url: "http://" + $scope.ipAddress + "/variables.html"
 		}).then(function success(response){
-			
 			var data = response.data;
-			var positionRegex = /(<p id="positionstring">)(.*)(<\/p>)/g;
-			var durationRegex = /(<p id="durationstring">)(.*)(<\/p>)/g;
-			
-			var positionMatch = positionRegex.exec(data);
-			var durationMatch = durationRegex.exec(data);
-			
-			$scope.progressInfo = positionMatch[2] + "/" + durationMatch[2];
-			$scope.$apply();
+			$scope.filename = extractVariable(data, "file");
+			$scope.progressInfo = extractVariable(data, "positionstring") + "/" + extractVariable(data, "durationstring");
 		});
+	}
+	
+	function extractVariable(variablesResponse, variable){
+		var regex = new RegExp('(<p id="' + variable +  '">)(.*)(<\/p>)');
+		var match = regex.exec(variablesResponse);
+		return match[2];
 	}
 	
 	function showPiPFull(){
