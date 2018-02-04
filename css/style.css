@@ -57,3 +57,7 @@ html * {
 #ip_addr input.active {
 	background-color: green;
 }
+
+.transparent {
+	color: #797979;
+}

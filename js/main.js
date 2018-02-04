@@ -41,7 +41,8 @@ var TVKEY = {
 
 var MODE = {
 	NORMAL : 0,
-	OPT : 1
+	OPT : 1,
+	EDIT_IP : 2
 }
 
 var TVKEY_TO_MPC_COMMAND = {};
@@ -195,18 +196,31 @@ app.controller('MainController', ['$scope', '$http', '$interval', function MainC
 					callMpcCommand(keyCode)
 					break;
 			}
-		}
-		
-		if(isMode(MODE.OPT)){
+		} else if(isMode(MODE.OPT)){
 			switch (keyCode) {
 				case TVKEY.BACK:
-					$scope.ipAddressInput.val = $scope.ipAddress;
 					switchMode(MODE.NORMAL);
 					showPiPFull();
 					break;
 				case TVKEY.OK:
+					switchMode(MODE.EDIT_IP);
+					break;
+				default:
+					callMpcCommand(keyCode)
+					break;
+			}	
+			console.log($scope.ipAddressInput.val);
+			$scope.$apply();
+		} else if(isMode(MODE.EDIT_IP)){
+			switch (keyCode) {
+				case TVKEY.BACK:
+					$scope.ipAddressInput.val = $scope.ipAddress;
+					switchMode(MODE.OPT);
+					break;
+				case TVKEY.OK:
 					$scope.ipAddress = $scope.ipAddressInput.val;
 					localStorage.setItem(IP_ADDR_LOCAL_STORAGE_KEY, $scope.ipAddress);
+					switchMode(MODE.OPT);
 					break;
 				case TVKEY.LEFT:
 					if($scope.ipAddressInput.val.length > 0){
@@ -241,7 +255,6 @@ app.controller('MainController', ['$scope', '$http', '$interval', function MainC
 			console.log($scope.ipAddressInput.val);
 			$scope.$apply();
 		}
-		
 		
 	}
 	

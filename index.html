@@ -40,15 +40,24 @@
 	    </div>
 	    
 		<div id="opts">
-		  <div class="opt left">BACK</div>
-		  <div class="center">
-			  <div class="opt up">:</div>
-			  <div id="ip_addr">
-			  	<input ng-class="{ 'active': ipAddress === ipAddressInput.val }" ng-value="ipAddressInput.val" type="text"/></input>
-			  </div>
-			  <div class="opt down">.</div>
-		  </div>
-		  <div class="opt right">CLEAR</div>
+	  		<div class="opt left" ng-class="{'transparent' : mode == 1}">
+		  		USUŃ
+	  		</div>
+			<div class="center">
+				<div class="opt up">
+					<span ng-show="mode == 2">:</span>
+					<span ng-show="mode == 1">Naciśnij OK by edytować IP</span>
+				</div>
+				<div id="ip_addr">
+			  		<input ng-class="{ 'active': ipAddress === ipAddressInput.val }" ng-value="ipAddressInput.val" type="text"/></input>
+			  	</div>
+			  	<div class="opt down" ng-show="mode == 2">
+			  		.
+			  	</div>
+			</div>
+		  	<div class="opt right" ng-show="mode == 2">
+		  		CZYŚĆ
+		  	</div>
 		</div>
 	</div>
 </body>
