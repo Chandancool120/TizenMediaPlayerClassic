@@ -58,16 +58,100 @@ TVKEY_TO_MPC_COMMAND[TVKEY.VOLUME_MUTE] = MPC_COMMAND.MUTE;
 
 var IP_ADDR_LOCAL_STORAGE_KEY = "IP_ADDR";
 
+app.config(['$httpProvider', function($httpProvider) {
+    $httpProvider.defaults.timeout = 500;
+}])
+
+app.controller('ClockController', ['$scope', '$interval', function($scope, $interval){
+	function init(){
+		startClock();
+	}
+	
+	function startClock(){
+	  var tick = function() {
+	    $scope.clock = Date.now();
+	  }
+	  tick();
+	  $interval(tick, 1000);
+	}
+	
+	init();
+}]);
+
+app.controller('InfoController', ['$scope', function($scope){
+	function init(){
+		console.log()
+		$scope.$parent.$watch('variables', function(variables){
+			updateInfo(variables);
+		})
+	}
+	
+	function updateInfo(variables){
+		clearInfo();
+		if(variables){
+			$scope.filename = extractVariable(variables, "file");
+			
+			var position = extractVariable(variables, "positionstring");
+			var duration = extractVariable(variables, "durationstring");
+			$scope.progressInfo = position + "/" + duration;
+			$scope.remaining = HHmmssDiff(position, duration);
+		}
+	}
+	
+	function extractVariable(variables, variable){
+		var regex = new RegExp('(<p id="' + variable +  '">)(.*)(<\/p>)');
+		var match = regex.exec(variables);
+		return match[2];
+	}
+	
+	function HHmmssDiff(h1String, h2String){
+		var d1 = new Date("01/01/2007 " + h1String);
+		var d2 = new Date("01/01/2007 " + h2String);
+		if(d1 > d2){
+	  	var tmp = d1;
+	    d1 = d2;
+	    d2 = tmp;
+	  }
+	  
+	  var secsDiff = timeDiff(d1.getSeconds(), d2.getSeconds(), 0);
+	  var minsDiff = timeDiff(d1.getMinutes(), d2.getMinutes(), secsDiff[1]);
+	  var hoursDiff = timeDiff(d1.getHours(), d2.getHours(), minsDiff[1]);
+	  
+	  return hoursDiff[0] + ':' + minsDiff[0] + ':' + secsDiff[0];
+	}
+
+	function timeDiff(t1, t2, reminder){
+	  var diff = t2 - t1 + reminder;
+	  var newReminder = 0;
+	  if(diff < 0){
+	  	diff = diff + 60;
+	    newReminder = -1;
+	  }
+	  if(diff < 10){
+	  	diff = (diff < 10 ? '0' : '') + diff;
+	  }
+	  var result = [diff, newReminder];
+	  return result;
+	}
+	
+	function clearInfo(){
+		$scope.progressInfo = "";
+		$scope.filename = "";
+		$scope.remaining = "";
+	}
+	
+	init();
+	
+}]);
+
 app.controller('MainController', ['$scope', '$http', '$interval', function MainController($scope, $http, $interval) {
-	var mode = MODE.NORMAL;
+	$scope.mode = MODE.NORMAL;
 	
 	function init(){
 		var savedIpAddr = localStorage.getItem(IP_ADDR_LOCAL_STORAGE_KEY);
 		$scope.ipAddressInput = {val: savedIpAddr ? savedIpAddr : '192.168.0.13:13579'};
 		$scope.ipAddress = $scope.ipAddressInput.val;
-		$scope.progressInfo = "";
-		$scope.filename = "";
-		$scope.remaining = "";
+		$scope.variables = "";
 		
 		console.log(tizen.tvinputdevice.getSupportedKeys());
 		tizen.tvinputdevice.registerKeyBatch(['MediaPlay', 'MediaPause', 'MediaRewind', 'MediaFastForward', 
@@ -76,7 +160,6 @@ app.controller('MainController', ['$scope', '$http', '$interval', function MainC
 		document.addEventListener("keydown", keyDownEventListener);
 		
 		showPiPFull();
-		startClock();
 	}
 	
 	function callMpcCommand(keycode){
@@ -89,14 +172,6 @@ app.controller('MainController', ['$scope', '$http', '$interval', function MainC
 				url: "http://" + $scope.ipAddress + "/command.html?wm_command=" + commandCode
 			});
 		}
-	}
-	
-	function startClock(){
-	  var tick = function() {
-	    $scope.clock = Date.now();
-	  }
-	  tick();
-	  $interval(tick, 1000);
 	}
 	
 	function keyDownEventListener(e){
@@ -148,34 +223,16 @@ app.controller('MainController', ['$scope', '$http', '$interval', function MainC
 					$scope.ipAddressInput.val += ".";
 					break;
 				case TVKEY.ZERO:
-					$scope.ipAddressInput.val += "0";
-					break;
 				case TVKEY.ONE:
-					$scope.ipAddressInput.val += "1";
-					break;
 				case TVKEY.TWO:
-					$scope.ipAddressInput.val += "2";
-					break;
 				case TVKEY.THREE:
-					$scope.ipAddressInput.val += "3";
-					break;
 				case TVKEY.FOUR: 
-					$scope.ipAddressInput.val += "4";
-					break;
 				case TVKEY.FIVE: 
-					$scope.ipAddressInput.val += "5";
-					break;
 				case TVKEY.SIX: 
-					$scope.ipAddressInput.val += "6";
-					break;
 				case TVKEY.SEVEN: 
-					$scope.ipAddressInput.val += "7";
-					break;
 				case TVKEY.EIGHT:
-					$scope.ipAddressInput.val += "8";
-					break;
 				case TVKEY.NINE: 
-					$scope.ipAddressInput.val += "9";
+					$scope.ipAddressInput.val += (keyCode - 2);
 					break;
 				default:
 					callMpcCommand(keyCode)
@@ -189,52 +246,31 @@ app.controller('MainController', ['$scope', '$http', '$interval', function MainC
 	}
 	
 	function isMode(toCheck){
-		return mode == toCheck;
+		return $scope.mode == toCheck;
 	}
 	
 	function switchMode(newMode){
-		mode = newMode;
+		$scope.mode = newMode;
 	}
 	
 	function showOptView(){
-		updateProgressInfo();
+		updateVariables();
 		showPiP('15%', '0', '70%', '70%');
 	}
 	
-	function updateProgressInfo(){
-		$scope.progressInfo = "";
-		$scope.filename = "";
-		$scope.remaining = "";
+	function updateVariables(){
+		$scope.variables = "";
 		$http({
 			method: "GET",
-			url: "http://" + $scope.ipAddress + "/variables.html"
+			url: "http://" + $scope.ipAddress + "/variables.html",
+			timeout: 500
 		}).then(function success(response){
-			var data = response.data;
-			$scope.filename = extractVariable(data, "file");
+			$scope.variables = response.data;
+		}, function error(response){
 			
-			var position = extractVariable(data, "positionstring");
-			var duration = extractVariable(data, "durationstring");
-			$scope.progressInfo = position + "/" + duration;
-			
-			var positionDate = new Date("01/01/2007 " + position);
-			var durationDate = new Date("01/01/2007 " + duration);
-
-			$scope.remaining = pad2((durationDate.getHours() - positionDate.getHours())) + ":" 
-				+ pad2((durationDate.getMinutes() - positionDate.getMinutes())) + ":" 
-				+ pad2((durationDate.getSeconds() - positionDate.getSeconds()))
 		});
 	}
-	
-	function extractVariable(variablesResponse, variable){
-		var regex = new RegExp('(<p id="' + variable +  '">)(.*)(<\/p>)');
-		var match = regex.exec(variablesResponse);
-		return match[2];
-	}
-	
-	function pad2(number) {
-	     return number < 0 ? '00' : (number < 10 ? '0' : '') + number
-	}
-	
+
 	function showPiPFull(){
 		showPiP('0', '0', '100%', '100%');
 	}

@@ -21,21 +21,23 @@
 </head>
 <body>
 	<div ng-controller="MainController">
-	    <div>
+	    <div ng-controller="ClockController">
 		    <p class='clock'>{{ clock | date:'HH:mm:ss'}}</p>
 	    </div>
 	    
-	    <div class="progress">
-	    	<p><b>Postęp:</b></br> {{progressInfo}}</p>
+	    <div ng-show="variables" ng-controller="InfoController">
+		    <div class="progress">
+		    	<p><b>Postęp:</b></br> {{progressInfo}}</p>
+		    </div>
+		    
+		    <div class="remaining">
+		    	<p><b>Pozostało:</b></br> {{remaining}}</p>
+		    </div>
+		    
+	   	    <div class='filename'>
+		    	<p><b>Nazwa pliku:</b></br> {{filename}}</p>
+	    	</div>
 	    </div>
-	    
-	    <div class="remaining">
-	    	<p><b>Pozostało:</b></br> {{remaining}}</p>
-	    </div>
-	    
-   	    <div class='filename'>
-	    	<p><b>Nazwa pliku:</b></br> {{filename}}</p>
-    	</div>
 	    
 		<div id="opts">
 		  <div class="opt left">BACK</div>
